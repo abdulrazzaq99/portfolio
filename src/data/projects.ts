@@ -142,12 +142,101 @@ export const projects: Project[] = [
       { label: "Stack surfaces", value: "4", note: "Web, Node API, Python svc, Solidity" },
     ],
     embed: {
-      kind: "fallback",
-      lang: "javascript",
-      caption: "Role-aware projection at the API layer — founders and investors get different shapes from the same query.",
-      code:
-`// src/lib/feed/project-projection.js
-export function projectFor(role, project) {
+      kind: "sandpack",
+      template: "react-ts",
+      entry: "/App.tsx",
+      files: {
+        "/App.tsx":
+`import { useState } from "react";
+import { projectFor, type Role } from "./project-projection";
+import { sample } from "./sample";
+
+/**
+ * Role-aware projection — same query, different shape per viewer.
+ * Edit project-projection.ts to change the rules, or sample.ts to change
+ * the underlying data. The output below re-renders live.
+ */
+const ROLES: Array<{ key: Role; label: string }> = [
+  { key: "founder",   label: "Founder" },
+  { key: "investor",  label: "Investor" },
+  { key: null,        label: "Anonymous" },
+];
+
+export default function App() {
+  const [role, setRole] = useState<Role>("founder");
+  const projected = projectFor(role, sample);
+  return (
+    <div style={{
+      fontFamily: "system-ui, sans-serif",
+      padding: 20,
+      color: "#e6f0ea",
+      background: "#0e1411",
+      minHeight: "100vh",
+    }}>
+      <h2 style={{ margin: 0, fontSize: 18 }}>Role-aware projection</h2>
+      <p style={{ marginTop: 6, opacity: 0.7, fontSize: 13 }}>
+        Pick a viewer. The same query produces a different shape.
+      </p>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 14, marginBottom: 14 }}>
+        {ROLES.map((r) => {
+          const active = role === r.key;
+          return (
+            <button
+              key={r.label}
+              onClick={() => setRole(r.key)}
+              style={{
+                padding: "8px 14px",
+                fontSize: 12,
+                fontFamily: "ui-monospace, monospace",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                background: active ? "rgba(80,235,160,0.12)" : "transparent",
+                color: active ? "#7af2bb" : "#9aa6a1",
+                border: \`1px solid \${active ? "#7af2bb" : "#2c3a34"}\`,
+                cursor: "pointer",
+                borderRadius: 0,
+              }}
+            >
+              {r.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <pre style={{
+        margin: 0,
+        padding: 14,
+        background: "#0a0f0c",
+        border: "1px solid #1c2622",
+        fontSize: 12.5,
+        lineHeight: 1.55,
+        overflow: "auto",
+      }}>{JSON.stringify(projected, null, 2)}</pre>
+    </div>
+  );
+}`,
+        "/project-projection.ts":
+`// src/lib/feed/project-projection.ts
+// The actual server-side projection function from Capital Valley.
+// Each role gets a different shape of the same underlying record.
+
+export type Role = "founder" | "investor" | null;
+
+type Project = {
+  _id: string;
+  title: string;
+  summary: string;
+  sector: string;
+  merkleProof: string;
+  viewCount: number;
+  premiumMsgCount: number;
+  ownerId: string;
+  allowsContact: boolean;
+  premiumOnlyContact: boolean;
+};
+
+export function projectFor(role: Role, project: Project) {
   const base = {
     id: project._id,
     title: project.title,
@@ -177,6 +266,21 @@ export function projectFor(role, project) {
   // unauthenticated: only the public summary
   return base;
 }`,
+        "/sample.ts":
+`// One hardcoded project record — pretend this came from MongoDB.
+export const sample = {
+  _id: "p_42",
+  title: "Solar-powered AgriDrone",
+  summary: "Autonomous drones for crop monitoring in Punjab.",
+  sector: "AgriTech",
+  merkleProof: "0xa1b2c3d4e5f6...",
+  viewCount: 1284,
+  premiumMsgCount: 17,
+  ownerId: "u_91",
+  allowsContact: true,
+  premiumOnlyContact: false,
+};`,
+      },
     },
     relatedSlugs: ["finalcircle", "lead-genie"],
   },

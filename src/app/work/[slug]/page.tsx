@@ -8,6 +8,7 @@ import { WorkPageShell, WorkSectionEyebrow } from "@/components/work/work-page-s
 import { MetricsTable } from "@/components/work/metrics-table";
 import { RelatedWork } from "@/components/work/related-work";
 import { Embed } from "@/components/work/embed";
+import { HateSpeechMatrix } from "@/components/work/hate-speech-matrix";
 
 type Params = { slug: string };
 
@@ -49,10 +50,17 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
   const hasEmbed = project.embed && project.embed.kind !== "none";
   const hasMetrics = !!project.metrics?.length;
   const hasThinking = !!project.thinking;
+  const hasTryIt = slug === "hate-speech";
+
+  // Section numbering counts only the sections that actually render, so
+  // sparser projects (e.g. no metrics, no thinking) still read 01, 02, 03,
+  // not 01, 04, 07.
+  let sectionN = 0;
+  const num = () => String(++sectionN).padStart(2, "0");
 
   return (
     <WorkPageShell project={project}>
-      {/* Stack ribbon */}
+      {/* Stack ribbon — not numbered */}
       <section>
         <div className="flex flex-wrap gap-1.5">
           {project.stack.map((s) => (
@@ -63,7 +71,7 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
 
       {/* Context */}
       <section>
-        <WorkSectionEyebrow num="01" label="Context" />
+        <WorkSectionEyebrow num={num()} label="Context" />
         <div className="prose-readable max-w-[68ch] text-[15.5px] leading-[1.75] text-[var(--color-ink-soft)] sm:text-[16.5px]">
           {(hasContext ? project.context! : project.problem)
             .split(/\n\n+/)
@@ -78,7 +86,7 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
       {/* Architecture */}
       {hasArch && (
         <section>
-          <WorkSectionEyebrow num="02" label="Architecture" />
+          <WorkSectionEyebrow num={num()} label="Architecture" />
           <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg)]/40 p-4 backdrop-blur-sm sm:p-6">
             <ArchitectureDiagram arch={project.architecture!} />
           </div>
@@ -88,15 +96,23 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
       {/* The Code */}
       {hasEmbed && (
         <section>
-          <WorkSectionEyebrow num="03" label="The Code" />
+          <WorkSectionEyebrow num={num()} label="The Code" />
           <Embed embed={project.embed!} />
+        </section>
+      )}
+
+      {/* Try it — per-project interactive widgets */}
+      {hasTryIt && (
+        <section>
+          <WorkSectionEyebrow num={num()} label="Try it" />
+          <HateSpeechMatrix />
         </section>
       )}
 
       {/* Metrics */}
       {hasMetrics && (
         <section>
-          <WorkSectionEyebrow num="04" label="Metrics" />
+          <WorkSectionEyebrow num={num()} label="Metrics" />
           <MetricsTable metrics={project.metrics!} />
         </section>
       )}
@@ -104,7 +120,7 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
       {/* Lessons (Thinking blocks always visible on case-study pages) */}
       {hasThinking && (
         <section>
-          <WorkSectionEyebrow num="05" label="Lessons" />
+          <WorkSectionEyebrow num={num()} label="Lessons" />
           <div className="grid gap-3 sm:grid-cols-2">
             <ThinkingBlock icon={Brain}         label="Tech decisions"  items={project.thinking!.decisions} />
             <ThinkingBlock icon={Scale}         label="Tradeoffs"       items={project.thinking!.tradeoffs} />
@@ -116,7 +132,7 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
 
       {/* Related */}
       <section>
-        <WorkSectionEyebrow num="06" label="Related work" />
+        <WorkSectionEyebrow num={num()} label="Related work" />
         <RelatedWork project={project} />
       </section>
     </WorkPageShell>
