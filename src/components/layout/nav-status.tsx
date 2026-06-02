@@ -29,7 +29,9 @@ function getPktState() {
 }
 
 export function LiveClock() {
-  const [state, setState] = useState(() => getPktState());
+  // Start with null so the SSR markup matches the first client render.
+  // The actual time fills in after mount.
+  const [state, setState] = useState<ReturnType<typeof getPktState> | null>(null);
   useEffect(() => {
     const tick = () => setState(getPktState());
     tick();
@@ -37,12 +39,12 @@ export function LiveClock() {
     return () => window.clearInterval(id);
   }, []);
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="font-medium text-[var(--color-ink-soft)]">{state.time}</span>
+    <span className="inline-flex items-center gap-1.5" suppressHydrationWarning>
+      <span className="font-medium text-[var(--color-ink-soft)]">{state?.time ?? "--:--"}</span>
       <span className="text-[var(--color-muted-2)]">PKT</span>
       <span aria-hidden className="text-[var(--color-muted-2)]">·</span>
-      <span className={state.onHours ? "text-[var(--color-primary-glow)]" : "text-[var(--color-muted-2)]"}>
-        {state.label}
+      <span className={state?.onHours ? "text-[var(--color-primary-glow)]" : "text-[var(--color-muted-2)]"}>
+        {state?.label ?? "—"}
       </span>
     </span>
   );

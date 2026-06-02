@@ -19,9 +19,16 @@ const FOCUS_ROTATION = ["AI/ML apps", "RAG pipelines", "Realtime systems", "Desi
  *   5. Two flat CTA links at the bottom
  */
 export function Hero() {
-  const today = new Date()
-    .toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" })
-    .toUpperCase();
+  // Defer date to post-mount so server/client renders match (server SSR can
+  // disagree with the user's local time and trip hydration).
+  const [today, setToday] = useState<string>("");
+  useEffect(() => {
+    setToday(
+      new Date()
+        .toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" })
+        .toUpperCase(),
+    );
+  }, []);
 
   return (
     <section
@@ -31,9 +38,9 @@ export function Hero() {
       <Container size="wide">
         {/* Top metadata strip */}
         <div className="mb-16 flex items-center justify-between font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
-          <span className="inline-flex items-center gap-3">
+          <span className="inline-flex items-center gap-3" suppressHydrationWarning>
             <span className="text-[var(--color-primary-glow)]">●</span>
-            Engineer · {today}
+            Engineer{today && ` · ${today}`}
           </span>
           <span className="hidden sm:inline">{personal.coords}</span>
         </div>
