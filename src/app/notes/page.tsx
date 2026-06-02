@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/layout/container";
-import { publishedNotes } from "@/content/notes";
+import { SectionHeader } from "@/components/layout/section-header";
+import { publishedNotes, type Note } from "@/content/notes";
 
 export const metadata: Metadata = {
   title: "Notes — Abdul Razzaq",
@@ -16,38 +17,37 @@ export const metadata: Metadata = {
 
 export default function NotesIndexPage() {
   const notes = publishedNotes();
+  // Take the first published note as the featured callout (if it has an excerpt).
+  const featured = notes[0]?.meta.excerpt ? notes[0] : undefined;
+  const rest = featured ? notes.slice(1) : notes;
 
   return (
     <main className="relative pt-32 pb-32 sm:pt-40 sm:pb-44">
       <Container>
-        {/* Eyebrow */}
-        <div className="mb-8 flex items-center gap-3 font-[family-name:var(--font-mono)] text-[11px] tracking-[0.16em] text-[var(--color-muted)]">
-          <span className="text-[var(--color-primary-glow)]">N°</span>
-          <span className="text-[var(--color-ink)]">05</span>
-          <span className="text-[var(--color-muted-2)]">—</span>
-          <span className="uppercase">Notes</span>
-          <span className="ml-2 inline-block h-px flex-1 max-w-[120px] bg-gradient-to-r from-[var(--color-line-strong)] to-transparent" />
-        </div>
+        <SectionHeader
+          num="07"
+          section="SECTION"
+          keywords={["WRITING", "FEED", "INDEX"]}
+          title={{ left: "WRITING", right: "NOTES" }}
+          subSpec={{
+            num: "07",
+            label: "NOTES",
+            meta: `${notes.length} ${notes.length === 1 ? "essay" : "essays"} · short, irregular`,
+          }}
+        />
 
-        {/* Title */}
-        <h1 className="text-balance font-[family-name:var(--font-display)] text-[clamp(48px,7vw,108px)] font-normal leading-[0.96] tracking-[-0.02em] text-[var(--color-ink)]">
-          Notes
-          <span
-            className="text-[var(--color-primary-glow)]"
-            style={{ textShadow: "0 0 18px oklch(0.86 0.27 152 / 0.5)" }}
-          >.</span>
-        </h1>
-
-        <p className="mt-6 max-w-[60ch] text-[17px] leading-[1.6] text-[var(--color-ink-soft)] sm:text-[18px]">
+        <p className="-mt-8 mb-16 max-w-[60ch] text-[17px] leading-[1.6] text-[var(--color-ink-soft)] sm:text-[18px]">
           Essays on engineering, the design system behind this site, and the
           work that compounds. Short, irregular, written when something is
           worth saying.
         </p>
 
+        {featured && <FeaturedNote note={featured} />}
+
         {/* List */}
-        {notes.length > 0 ? (
-          <ul className="mt-20 flex flex-col">
-            {notes.map((note) => (
+        {rest.length > 0 ? (
+          <ul className="mt-10 flex flex-col">
+            {rest.map((note) => (
               <li key={note.meta.slug}>
                 <Link
                   href={`/notes/${note.meta.slug}`}
@@ -73,13 +73,73 @@ export default function NotesIndexPage() {
             ))}
           </ul>
         ) : (
-          <div className="mt-20 border-t border-[var(--color-line)] pt-10">
-            <p className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-              ↳ No published notes yet — drafts in flight.
-            </p>
-          </div>
+          !featured && (
+            <div className="mt-20 border-t border-[var(--color-line)] pt-10">
+              <p className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                ↳ No published notes yet — drafts in flight.
+              </p>
+            </div>
+          )
         )}
       </Container>
     </main>
+  );
+}
+
+/**
+ * Featured note — top of the index. Title + dek + a pull-quote excerpt with
+ * an emerald left bar (the only place excerpts surface).
+ */
+function FeaturedNote({ note }: { note: Note }) {
+  const dateLabel = new Date(note.meta.date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  return (
+    <Link
+      href={`/notes/${note.meta.slug}`}
+      className="group block border border-[var(--color-line-strong)] bg-[var(--color-bg)] p-7 transition-colors hover:border-[var(--color-primary-glow)]/60 sm:p-9"
+    >
+      {/* Featured strip */}
+      <div className="flex items-center justify-between font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
+        <span className="inline-flex items-center gap-2">
+          <span className="text-[var(--color-primary-glow)]">▸</span>
+          <span className="text-[var(--color-primary-glow)]">FEATURED</span>
+          <span className="text-[var(--color-muted-2)]">·</span>
+          <span>OPENING</span>
+        </span>
+        <span>
+          {dateLabel}
+          <span className="mx-2 text-[var(--color-muted-2)]">·</span>
+          {note.meta.readTime} read
+        </span>
+      </div>
+
+      {/* Title */}
+      <h2 className="mt-6 text-balance text-[28px] font-semibold tracking-tight text-[var(--color-ink)] transition-colors group-hover:text-[var(--color-primary-glow)] sm:text-[34px]">
+        {note.meta.title}
+      </h2>
+
+      {/* Pull-quote excerpt */}
+      {note.meta.excerpt && (
+        <blockquote className="mt-6 border-l-2 border-[var(--color-primary-glow)] pl-5">
+          <p className="text-[15.5px] italic leading-[1.65] text-[var(--color-ink-soft)] sm:text-[17px]">
+            {note.meta.excerpt}
+          </p>
+          <footer className="mt-3 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.22em] text-[var(--color-muted-2)]">
+            § Excerpt
+          </footer>
+        </blockquote>
+      )}
+
+      {/* Footer CTA */}
+      <div className="mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.22em] text-[var(--color-ink-soft)] transition-colors group-hover:text-[var(--color-primary-glow)]">
+        <span className="border-b border-[var(--color-line-strong)] pb-0.5 group-hover:border-[var(--color-primary-glow)]">
+          Read the essay
+        </span>
+        <ArrowUpRight size={13} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      </div>
+    </Link>
   );
 }

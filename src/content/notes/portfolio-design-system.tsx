@@ -7,6 +7,8 @@ export const meta: NoteMeta = {
   date: "2026-04-30",
   readTime: "12 min",
   status: "draft",
+  excerpt:
+    "I started with a single brand emerald and a fresh Tailwind v4 install. Three rebuilds later, the system is OKLCH-native, theme-driven, and brutalist by default — these are the decisions I'd make again, and the ones I'd undo.",
 };
 
 /**
@@ -64,7 +66,7 @@ export default function PortfolioDesignSystem() {
 /* ── Tiny prose primitives — keep typography consistent across notes ── */
 function H2({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mt-14 mb-5 font-[family-name:var(--font-display)] text-[clamp(28px,3.5vw,40px)] font-normal leading-[1.15] tracking-[-0.02em] text-[var(--color-ink)]">
+    <h2 className="mt-14 mb-5 text-[clamp(24px,3vw,32px)] font-bold leading-[1.2] tracking-[-0.025em] text-[var(--color-ink)]">
       {children}
     </h2>
   );

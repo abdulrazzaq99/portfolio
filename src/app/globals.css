@@ -1,39 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Surfaces — deep dark, subtle green undertone ─────── */
-  --color-bg:        oklch(0.155 0.015 158);   /* deep near-black w/ green */
-  --color-bg-2:      oklch(0.190 0.018 158);   /* card resting */
-  --color-bg-3:      oklch(0.235 0.020 158);   /* tile / chip ground */
-  --color-surface:   oklch(1 0 0 / 0.035);     /* glass — white wash on dark */
-  --color-elevated:  oklch(1 0 0 / 0.055);     /* slightly stronger glass */
-  --color-terminal:  oklch(0.115 0.015 158);   /* deepest panel — code blocks */
+  /* ── Surfaces — strict monochrome, slight green undertone for warmth ── */
+  --color-bg:        oklch(0.135 0.008 158);   /* deep near-black */
+  --color-bg-2:      oklch(0.175 0.010 158);   /* row hover, table rows */
+  --color-bg-3:      oklch(0.215 0.010 158);   /* tile / chip ground */
+  --color-surface:   oklch(1 0 0 / 0.025);     /* glass — barely there */
+  --color-elevated:  oklch(1 0 0 / 0.04);      /* slightly stronger glass */
+  --color-terminal:  oklch(0.105 0.010 158);   /* deepest panel — code blocks */
 
   /* ── Ink & text ───────────────────────────────────────── */
-  --color-ink:       oklch(0.975 0.005 150);   /* off-white headings */
-  --color-ink-soft:  oklch(0.870 0.012 150);   /* body */
-  --color-muted:     oklch(0.640 0.012 158);   /* labels */
-  --color-muted-2:   oklch(0.480 0.014 158);   /* hint */
+  --color-ink:       oklch(0.98 0.005 150);    /* off-white headings */
+  --color-ink-soft:  oklch(0.86 0.010 150);    /* body */
+  --color-muted:     oklch(0.58 0.010 158);    /* labels */
+  --color-muted-2:   oklch(0.42 0.012 158);    /* hint */
 
-  /* ── Lines ────────────────────────────────────────────── */
-  --color-line:        oklch(1 0 0 / 0.07);
-  --color-line-strong: oklch(1 0 0 / 0.14);
+  /* ── Lines — visible, not decorative ────────────────────── */
+  --color-line:        oklch(1 0 0 / 0.08);
+  --color-line-strong: oklch(1 0 0 / 0.18);
 
-  /* ── Brand: Emerald (kept) + new neon glow ────────────── */
-  --color-primary:        oklch(0.62 0.165 156);  /* punched up base — visible on dark */
-  --color-primary-deep:   oklch(0.46 0.108 158);  /* original #006241 — for body inks */
-  --color-primary-soft:   oklch(0.62 0.165 156 / 0.14);
-  --color-primary-glow:   oklch(0.86 0.27 152);   /* NEON emerald — accent strokes */
-  --color-primary-neon:   oklch(0.92 0.30 150);   /* peak neon — glows + prompts */
+  /* ── Brand: a single emerald, used SPARINGLY ──────────── */
+  --color-primary:        oklch(0.62 0.165 156);
+  --color-primary-deep:   oklch(0.46 0.108 158);
+  --color-primary-soft:   oklch(0.62 0.165 156 / 0.12);
+  --color-primary-glow:   oklch(0.78 0.20 154);
+  --color-primary-neon:   oklch(0.78 0.20 154);
   --color-primary-ink:    oklch(0.30 0.080 158);
-
-  /* Backwards-compat aliases (a few components still reference these names) */
   --color-emerald:        var(--color-primary);
 
   /* ── Type ─────────────────────────────────────────────── */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-instrument-serif), "Instrument Serif", "Iowan Old Style", "Apple Garamond", "Baskerville", "Times New Roman", serif;
 
   /* ── Motion ───────────────────────────────────────────── */
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
@@ -41,64 +38,55 @@
 }
 
 /* ──────────────────────────────────────────────────────────
-   Light theme overrides — applied when <html data-theme="light">.
-   The dark theme above is the default; light is opt-in.
-
-   Surfaces use shades around the user's specified #B6B6B6 page
-   background. Cards and chips sit LIGHTER than the page so they
-   pop (the inverse of dark mode where they sit lighter on near-
-   black). The embedded terminal + IDE artifact visuals keep
-   their deep dark surface in both themes — engineers' tools are
-   always dark, regardless of OS theme.
+   Light theme overrides
    ────────────────────────────────────────────────────────── */
 :root[data-theme="light"] {
-  /* Surfaces — page stays at user-specified #B6B6B6, but cards jump to near-
-     white so they actually pop off the gray. (Per design-system research:
-     every high-quality light palette puts cards at #FAFAFA/#FFFFFF regardless
-     of bg color. The 0.06 luminance separation we had before was the cause
-     of the muddy feeling.) */
-  --color-bg:        oklch(0.74 0 0);             /* #B6B6B6 — page */
-  --color-bg-2:      oklch(0.96 0 0);             /* card resting — near-white, +0.22 jump from bg */
-  --color-bg-3:      oklch(0.88 0 0);             /* tile / chip ground — soft gray, sits naturally on the page */
-  /* Elevated surfaces (toggle, ghost buttons, terminal pill, glass utility)
-     use a SOFT GRAY tint instead of pure white — at #B6B6B6, white-wash
-     reads as plastic. A 0.86 base at 70% alpha integrates with the page. */
-  --color-surface:   oklch(0.84 0 0 / 0.55);      /* glass — subtle gray wash */
-  --color-elevated:  oklch(0.88 0 0 / 0.72);      /* stronger gray glass */
-  --color-terminal:  oklch(0.115 0.015 158);      /* unchanged — terminals stay dark */
+  --color-bg:        oklch(0.96 0 0);            /* off-white, near pure */
+  --color-bg-2:      oklch(0.92 0 0);            /* row hover */
+  --color-bg-3:      oklch(0.88 0 0);            /* tile / chip */
+  --color-surface:   oklch(0 0 0 / 0.03);
+  --color-elevated:  oklch(0 0 0 / 0.05);
+  --color-terminal:  oklch(0.105 0.010 158);
 
-  /* Text — darker across the board so mono labels read as labels and body
-     reads as body. All foreground/background pairs verified ≥4.5:1 WCAG AA
-     on bg-2 (#F5F5F5-ish), and ≥3:1 on the gray page bg for decorative metadata. */
-  --color-ink:       oklch(0.16 0.012 160);       /* headings — near-black */
-  --color-ink-soft:  oklch(0.24 0.010 160);       /* body — was 0.30, now darker */
-  --color-muted:     oklch(0.32 0.010 160);       /* mono labels — was 0.42 */
-  --color-muted-2:   oklch(0.46 0.010 160);       /* hint — was 0.55 */
+  --color-ink:       oklch(0.14 0.012 160);
+  --color-ink-soft:  oklch(0.26 0.010 160);
+  --color-muted:     oklch(0.42 0.010 160);
+  --color-muted-2:   oklch(0.56 0.010 160);
 
-  /* Borders — meaningfully visible. Was 0.10/0.20 alpha → invisible on gray.
-     Bumped to 0.18/0.34 so card edges, dividers, and chip borders register. */
-  --color-line:        oklch(0 0 0 / 0.18);
-  --color-line-strong: oklch(0 0 0 / 0.34);
+  --color-line:        oklch(0 0 0 / 0.12);
+  --color-line-strong: oklch(0 0 0 / 0.28);
 
-  /* Brand — deeper emerald in light mode (neon washes out on light bgs).
-     Same hue family, different L/C. */
-  --color-primary:        oklch(0.46 0.108 158);   /* the original #006241 */
-  --color-primary-deep:   oklch(0.42 0.110 158);
-  --color-primary-soft:   oklch(0.46 0.108 158 / 0.14);
-  --color-primary-glow:   oklch(0.48 0.135 156);   /* slightly punchier for hover */
-  --color-primary-neon:   oklch(0.42 0.135 156);   /* deepest brand variant */
-  --color-primary-ink:    oklch(0.30 0.080 158);
+  --color-primary:        oklch(0.46 0.108 158);
+  --color-primary-deep:   oklch(0.40 0.110 158);
+  --color-primary-soft:   oklch(0.46 0.108 158 / 0.12);
+  --color-primary-glow:   oklch(0.46 0.108 158);
+  --color-primary-neon:   oklch(0.42 0.110 158);
+  --color-primary-ink:    oklch(0.28 0.080 158);
   --color-emerald:        var(--color-primary);
 }
 
 /* ──────────────────────────────────────────────────────────
-   Global base
+   Global base — strict, flat, no ambient decoration
    ────────────────────────────────────────────────────────── */
 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-*::selection { background: var(--color-primary-neon); color: var(--color-bg); }
+*::selection { background: var(--color-primary); color: var(--color-bg); }
 
 html { scroll-behavior: smooth; color-scheme: dark; }
 html[data-theme="light"] { color-scheme: light; }
+
+/* Lenis mounts its own scroll handling; disable native smooth-scroll
+   when Lenis takes over to avoid double-easing. */
+html.lenis { scroll-behavior: auto; }
+html.lenis body { overscroll-behavior: contain; }
+
+/* Custom cursor active — hide native cursor across the document. */
+html.custom-cursor-active,
+html.custom-cursor-active *,
+html.custom-cursor-active a,
+html.custom-cursor-active button,
+html.custom-cursor-active input,
+html.custom-cursor-active textarea,
+html.custom-cursor-active select { cursor: none !important; }
 
 html, body {
   background: var(--color-bg);
@@ -108,211 +96,49 @@ html, body {
 }
 
 body {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% -10%, oklch(0.86 0.27 152 / 0.14), transparent 60%),
-    radial-gradient(ellipse 50% 45% at 100% 30%, oklch(0.62 0.165 156 / 0.10), transparent 70%),
-    radial-gradient(ellipse 55% 45% at 0% 70%, oklch(0.62 0.165 156 / 0.08), transparent 70%),
-    linear-gradient(180deg, var(--color-bg) 0%, oklch(0.115 0.015 158) 100%);
-  background-attachment: fixed;
   min-height: 100dvh;
-  transition: background-color 0.4s var(--ease-out);
-}
-
-/* Light-mode body — softer emerald glows on gray, no near-black gradient stop */
-html[data-theme="light"] body {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% -10%, oklch(0.46 0.108 158 / 0.10), transparent 60%),
-    radial-gradient(ellipse 50% 45% at 100% 30%, oklch(0.46 0.108 158 / 0.06), transparent 70%),
-    linear-gradient(180deg, var(--color-bg) 0%, oklch(0.66 0 0) 100%);
-  background-attachment: fixed;
-}
-
-/* Subtle scanline texture on the whole page — engineering-room feel.
-   Sits below content (z negative) so nothing is obscured. */
-body::before {
-  content: "";
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      oklch(1 0 0 / 0.012) 0px,
-      oklch(1 0 0 / 0.012) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  opacity: 0.55;
-}
-
-/* Light-mode scanlines: dark instead of white, lower opacity */
-html[data-theme="light"] body::before {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      oklch(0 0 0 / 0.025) 0px,
-      oklch(0 0 0 / 0.025) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  opacity: 0.4;
+  transition: background-color 0.4s var(--ease-out), color 0.4s var(--ease-out);
 }
 
 /* ──────────────────────────────────────────────────────────
-   Utilities
+   Utilities — minimal, brutalist-editorial
    ────────────────────────────────────────────────────────── */
-@utility glass {
-  background: var(--color-surface);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid var(--color-line);
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 0.06) inset,
-    0 0 0 1px oklch(1 0 0 / 0.02) inset,
-    0 24px 60px -30px oklch(0 0 0 / 0.65);
-}
-
-@utility glass-elevated {
-  background: var(--color-elevated);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid var(--color-line-strong);
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 0.08) inset,
-    0 30px 80px -30px oklch(0 0 0 / 0.7);
-}
-
 @utility text-balance {
   text-wrap: balance;
 }
 
-@utility container-x {
-  margin-inline: auto;
-  width: min(100% - 2rem, 1240px);
-}
-
-/* Neon emerald glow — used for hero artifacts and active states */
-@utility neon-glow {
-  box-shadow:
-    0 0 0 1px oklch(0.86 0.27 152 / 0.30),
-    0 0 24px oklch(0.86 0.27 152 / 0.30),
-    0 0 60px oklch(0.86 0.27 152 / 0.18);
-}
-
-@utility neon-text {
-  color: var(--color-primary-neon);
-  text-shadow:
-    0 0 12px oklch(0.86 0.27 152 / 0.55),
-    0 0 28px oklch(0.86 0.27 152 / 0.30);
-}
-
-/* Grain overlay (kept) — but lighter on dark */
-.grain::before {
-  content: "";
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: 80;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Animated gradient border (used on premium cards) — re-tuned for dark */
-@property --gx { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
-
-.gradient-border {
-  position: relative;
-  isolation: isolate;
-}
-.gradient-border::before {
-  content: "";
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg,
-    oklch(0.86 0.27 152 / 0.55) 0%,
-    oklch(1 0 0 / 0.05) 30%,
-    oklch(0.62 0.165 156 / 0.45) 70%,
-    oklch(1 0 0 / 0.04) 100%);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0.55;
-  transition: opacity 0.5s var(--ease-out);
-}
-.gradient-border:hover::before { opacity: 1; }
-
-/* Shimmer sweep on hover */
-.shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.shimmer::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.10) 50%, transparent 70%);
-  transform: translateX(-120%);
-  transition: transform 0.9s var(--ease-out);
-  pointer-events: none;
-}
-.shimmer:hover::after { transform: translateX(120%); }
-
-/* Hide scrollbar utility */
+/* Hide scrollbar utility (kept) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-/* ──────────────────────────────────────────────────────────
-   Reveal animation primitives
-   ────────────────────────────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
-  will-change: opacity, transform;
-}
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+/* Glass utilities (still used by some components — kept but quieter) */
+@utility glass {
+  background: var(--color-surface);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid var(--color-line);
 }
 
-/* Word-by-word reveal */
-.reveal-line { display: inline-block; overflow: hidden; vertical-align: top; padding-block: 0.06em; }
-.reveal-line > span {
-  display: inline-block;
-  transform: translateY(110%);
-  transition: transform 0.95s var(--ease-out);
+@utility glass-elevated {
+  background: var(--color-elevated);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid var(--color-line-strong);
 }
-.reveal-text.is-visible .reveal-line > span { transform: translateY(0); }
-.reveal-text .reveal-line:nth-child(1)  > span { transition-delay: 0.00s; }
-.reveal-text .reveal-line:nth-child(2)  > span { transition-delay: 0.05s; }
-.reveal-text .reveal-line:nth-child(3)  > span { transition-delay: 0.10s; }
-.reveal-text .reveal-line:nth-child(4)  > span { transition-delay: 0.15s; }
-.reveal-text .reveal-line:nth-child(5)  > span { transition-delay: 0.20s; }
-.reveal-text .reveal-line:nth-child(6)  > span { transition-delay: 0.25s; }
-.reveal-text .reveal-line:nth-child(7)  > span { transition-delay: 0.30s; }
-.reveal-text .reveal-line:nth-child(8)  > span { transition-delay: 0.35s; }
-.reveal-text .reveal-line:nth-child(9)  > span { transition-delay: 0.40s; }
-.reveal-text .reveal-line:nth-child(10) > span { transition-delay: 0.45s; }
-.reveal-text .reveal-line:nth-child(n+11) > span { transition-delay: 0.50s; }
 
 /* ──────────────────────────────────────────────────────────
-   Custom scrollbar (subtle)
+   Custom scrollbar — thin, monochrome
    ────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--color-line-strong);
-  border-radius: 999px;
+  border-radius: 0;
   border: 2px solid var(--color-bg);
 }
-::-webkit-scrollbar-thumb:hover { background: var(--color-primary-glow); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
-/* Focus ring — refined: thin, close to the element, inherits the element's
-   actual border-radius (no shape morph during focus). Visible enough for
-   keyboard users without dominating small controls. */
+/* Focus ring — thin, close to element, no shape morph */
 :focus-visible {
   outline: 1.5px solid var(--color-primary);
   outline-offset: 2px;

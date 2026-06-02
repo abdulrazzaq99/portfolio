@@ -1,199 +1,169 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Command, Menu, X } from "lucide-react";
 import { sections } from "@/lib/sections";
 import { useScrollSpy } from "@/hooks/use-scroll-spy";
-import { Container } from "@/components/layout/container";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LiveClock, SectionCounter } from "@/components/layout/nav-status";
 import { cn } from "@/lib/utils";
 import { personal } from "@/data/personal";
 
 /**
- * Editorial masthead — three columns aligned to the page Container grid.
- *
- * Sync notes:
- *   - Wraps content in <Container size="default"> so the navbar's left/right
- *     edges match every other section on the page (max-w-[1240px], same px scale).
- *   - "Scrolled" state is detected via an IntersectionObserver sentinel placed
- *     at y=0, not a scroll listener — no per-frame work, no jank.
- *   - Avatar uses transform: scale (not h/w) to avoid horizontal layout shift
- *     when the bar tightens.
- *   - Active nav marker is a 1px underline that scales-in horizontally —
- *     more typographic than a popping square.
- *   - ⌘K and ThemeToggle locked to the same 32×32 footprint.
+ * Vertical left-rail navigation. Brutalist-editorial register:
+ *   - Fixed left column, ~220px on desktop
+ *   - Logo block at top (initials + name + role label)
+ *   - Numbered nav list (N° 01 ABOUT, N° 02 WORK, ...)
+ *   - Status block at bottom (open / location / theme toggle / ⌘K)
+ *   - Mobile: collapses to a top bar with menu trigger; full-screen overlay
  */
 export function Navbar({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const ids = useMemo(() => sections.map((s) => s.id), []);
   const active = useScrollSpy(ids);
   const navSections = useMemo(() => sections.filter((s) => s.inNav), []);
-  const [scrolled, setScrolled] = useState(false);
+  const activeIndex = useMemo(() => {
+    const i = navSections.findIndex((s) => s.id === active);
+    return i + 1; // 0 = hero
+  }, [active, navSections]);
   const [open, setOpen] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Detect scroll-past-top via a sentinel — no scroll listener, no per-frame work.
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setScrolled(!entry.isIntersecting),
-      { rootMargin: "0px 0px -1px 0px", threshold: 0 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  // Lock body scroll while mobile menu is open
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    return () => { document.body.style.overflow = prev; };
   }, [open]);
 
   return (
     <>
-      {/* Sentinel — when this scrolls past the top, the navbar enters "scrolled" state */}
-      <div ref={sentinelRef} aria-hidden className="absolute left-0 top-0 h-px w-px" />
-
-      <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          scrolled
-            ? "border-b border-[var(--color-line)] bg-[var(--color-bg)]/72 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent",
-        )}
+      {/* ── DESKTOP RAIL — vertical fixed left column ───────────────── */}
+      <aside
+        aria-label="Site navigation"
+        className="fixed left-0 top-0 z-40 hidden h-dvh w-[220px] flex-col justify-between border-r border-[var(--color-line)] bg-[var(--color-bg)] px-7 py-8 lg:flex xl:w-[240px]"
       >
-        <Container>
-          <div
-            className={cn(
-              "grid w-full items-center gap-6 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "grid-cols-[auto_1fr_auto]",
-              scrolled ? "py-3" : "py-5 sm:py-6",
-            )}
-          >
-            {/* ── LEFT — Logo (avatar scales via transform, never resizes) */}
-            <Link
-              href="#home"
-              className="group flex items-center gap-3"
-              aria-label="Home"
-            >
-              <span
-                className={cn(
-                  "grid h-8 w-8 shrink-0 origin-center place-items-center rounded-full font-[family-name:var(--font-mono)] text-[11px] font-semibold transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  "bg-[var(--color-ink)] text-[var(--color-bg)]",
-                  "group-hover:scale-[1.05]",
-                  scrolled && "scale-90 group-hover:scale-95",
-                )}
-              >
+        {/* Top — identity */}
+        <div>
+          <Link href="/" className="block group">
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 place-items-center bg-[var(--color-ink)] font-[family-name:var(--font-mono)] text-[12px] font-semibold text-[var(--color-bg)] transition-transform duration-300 group-hover:scale-105">
                 {personal.initials}
               </span>
-              <span className="hidden flex-col leading-none sm:flex">
-                <span className="text-[13px] font-medium tracking-tight text-[var(--color-ink)]">
+              <div className="flex flex-col leading-none">
+                <span className="text-[14px] font-semibold tracking-tight text-[var(--color-ink)]">
                   {personal.name}
                 </span>
-                <span
-                  className={cn(
-                    "mt-1 font-[family-name:var(--font-mono)] text-[9.5px] uppercase tracking-[0.18em] text-[var(--color-muted)]",
-                    "transition-opacity duration-300",
-                    scrolled ? "opacity-0" : "opacity-100",
-                  )}
-                >
-                  Portfolio · Edition 2026
+                <span className="mt-1 font-[family-name:var(--font-mono)] text-[9.5px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                  Portfolio · MMXXVI
                 </span>
-              </span>
-            </Link>
+              </div>
+            </div>
+          </Link>
 
-            {/* ── CENTER — Nav links with underline-draws-in active marker */}
-            <nav
-              className="hidden justify-center md:flex"
-              aria-label="Primary"
-            >
-              <ul className="flex items-center gap-9 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em]">
-                {navSections.map((s) => {
-                  const isActive = active === s.id;
-                  return (
-                    <li key={s.id}>
-                      <Link
-                        href={`#${s.id}`}
-                        className={cn(
-                          "group relative inline-block py-1.5 transition-colors duration-200",
-                          isActive
-                            ? "text-[var(--color-ink)]"
-                            : "text-[var(--color-muted)] hover:text-[var(--color-ink)]",
-                        )}
-                      >
-                        {s.label}
-                        {/* Underline marker — draws in horizontally on active/hover */}
+          {/* Section counter — scrolls with active section */}
+          <div className="mt-6">
+            <SectionCounter index={activeIndex} total={navSections.length} />
+          </div>
+
+          {/* Numbered nav */}
+          <nav aria-label="Primary" className="mt-10">
+            <ul className="space-y-1">
+              {navSections.map((s, i) => {
+                const isActive = active === s.id;
+                return (
+                  <li key={s.id}>
+                    <Link
+                      href={`#${s.id}`}
+                      className={cn(
+                        "group flex items-baseline gap-3 py-2 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em] transition-colors duration-200",
+                        isActive
+                          ? "text-[var(--color-ink)]"
+                          : "text-[var(--color-muted)] hover:text-[var(--color-ink)]",
+                      )}
+                    >
+                      <span className={cn("transition-colors", isActive ? "text-[var(--color-primary-glow)]" : "text-[var(--color-muted-2)] group-hover:text-[var(--color-muted)]")}>
+                        N°{String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span>{s.label}</span>
+                      {isActive && (
                         <span
                           aria-hidden
-                          className={cn(
-                            "absolute -bottom-px left-0 right-0 h-px origin-left transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                            isActive
-                              ? "scale-x-100 bg-[var(--color-primary-glow)]"
-                              : "scale-x-0 bg-[var(--color-ink)] group-hover:scale-x-100",
-                          )}
-                          style={
-                            isActive
-                              ? { boxShadow: "0 0 8px oklch(0.86 0.27 152 / 0.6)" }
-                              : undefined
-                          }
+                          className="ml-auto inline-block h-1.5 w-1.5 bg-[var(--color-primary-glow)]"
                         />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-            {/* ── RIGHT — Controls (all 32×32, sharp corners, consistent rhythm) */}
-            <div className="flex items-center gap-2 justify-self-end">
-              <button
-                type="button"
-                onClick={onOpenTerminal}
-                aria-label="Open command terminal"
-                className={cn(
-                  "hidden h-8 items-center gap-1.5 px-2.5 sm:inline-flex",
-                  "border border-[var(--color-line-strong)]",
-                  "bg-transparent transition-colors duration-200",
-                  "hover:border-[var(--color-primary-glow)] hover:text-[var(--color-primary-glow)]",
-                )}
-              >
-                <Command size={11} strokeWidth={2.25} />
-                <span className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                  K
-                </span>
-              </button>
+            {/* Secondary routes */}
+            <ul className="mt-10 space-y-1 border-t border-[var(--color-line)] pt-6">
+              <SecondaryLink href="/notes" label="Notes" num="07" active={false} />
+              <SecondaryLink href="/system" label="System" num="08" active={false} />
+            </ul>
+          </nav>
+        </div>
 
-              <ThemeToggle className="hidden h-8 w-8 rounded-none sm:grid" />
-
-              <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                className="grid h-8 w-8 place-items-center border border-[var(--color-line-strong)] bg-transparent transition-colors duration-200 hover:border-[var(--color-primary-glow)] hover:text-[var(--color-primary-glow)] md:hidden"
-                aria-label={open ? "Close menu" : "Open menu"}
-                aria-expanded={open}
-              >
-                {open ? <X size={14} /> : <Menu size={14} />}
-              </button>
-            </div>
+        {/* Bottom — status + controls */}
+        <div className="space-y-4">
+          <div className="flex flex-col gap-1.5 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-glow)]" />
+              Open · for work
+            </span>
+            <span>{personal.location}</span>
+            <LiveClock />
           </div>
-        </Container>
+
+          <div className="flex items-center gap-2 border-t border-[var(--color-line)] pt-4">
+            <button
+              type="button"
+              onClick={onOpenTerminal}
+              aria-label="Open command terminal"
+              className="inline-flex h-8 items-center gap-1.5 border border-[var(--color-line-strong)] px-2.5 transition-colors hover:border-[var(--color-primary-glow)] hover:text-[var(--color-primary-glow)]"
+            >
+              <Command size={11} strokeWidth={2.25} />
+              <span className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                K
+              </span>
+            </button>
+            <ThemeToggle className="h-8 w-8 rounded-none" />
+          </div>
+        </div>
+      </aside>
+
+      {/* ── MOBILE TOP BAR ─────────────────────────────────────────── */}
+      <header className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-bg)]/85 px-5 py-3 backdrop-blur-xl lg:hidden">
+        <Link href="/" className="flex items-center gap-2.5" aria-label="Home">
+          <span className="grid h-7 w-7 place-items-center bg-[var(--color-ink)] font-[family-name:var(--font-mono)] text-[10px] font-semibold text-[var(--color-bg)]">
+            {personal.initials}
+          </span>
+          <span className="text-[13px] font-semibold tracking-tight">{personal.name}</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="h-8 w-8 rounded-none" />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            className="grid h-8 w-8 place-items-center border border-[var(--color-line-strong)]"
+          >
+            {open ? <X size={14} /> : <Menu size={14} />}
+          </button>
+        </div>
       </header>
 
-      {/* ── Mobile menu (CSS-only stagger via nth-child) */}
+      {/* ── MOBILE MENU OVERLAY ────────────────────────────────────── */}
       <div
         className={cn(
-          "fixed inset-0 z-40 transition-all duration-500 md:hidden",
-          open
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0",
+          "fixed inset-0 z-30 transition-all duration-500 lg:hidden",
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-        <div className="absolute inset-0 bg-[var(--color-bg)]/92 backdrop-blur-xl" />
+        <div className="absolute inset-0 bg-[var(--color-bg)]/95 backdrop-blur-xl" />
         <nav
           data-open={open}
           className="relative flex h-full flex-col items-start justify-center gap-1 px-8 pt-20"
@@ -203,35 +173,44 @@ export function Navbar({ onOpenTerminal }: { onOpenTerminal: () => void }) {
               key={s.id}
               href={`#${s.id}`}
               onClick={() => setOpen(false)}
-              className={cn(
-                "mobile-nav-item group flex items-baseline gap-4 py-3 text-4xl font-medium tracking-tight transition-colors",
-                "text-[var(--color-ink)] hover:text-[var(--color-primary-glow)]",
-              )}
+              className="mobile-nav-item group flex items-baseline gap-5 py-3 text-3xl font-medium tracking-tight text-[var(--color-ink)]"
             >
               <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--color-primary-glow)]">
-                0{i + 1}
+                N°{String(i + 1).padStart(2, "0")}
               </span>
-              {s.label}
+              <span>{s.label}</span>
             </Link>
           ))}
-          <div className="mobile-nav-item mt-8 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                onOpenTerminal();
-              }}
-              className="inline-flex items-center gap-2 border border-[var(--color-line-strong)] px-4 py-2 text-sm"
+          <div className="mobile-nav-item mt-6 flex flex-col gap-3">
+            <Link
+              href="/notes"
+              onClick={() => setOpen(false)}
+              className="font-[family-name:var(--font-mono)] text-sm uppercase tracking-[0.18em] text-[var(--color-ink-soft)]"
             >
-              <Command size={14} /> Open Terminal
-            </button>
-            <ThemeToggle className="h-9 w-9 rounded-none" />
+              N°07 — Notes
+            </Link>
+            <Link
+              href="/system"
+              onClick={() => setOpen(false)}
+              className="font-[family-name:var(--font-mono)] text-sm uppercase tracking-[0.18em] text-[var(--color-ink-soft)]"
+            >
+              N°08 — System
+            </Link>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onOpenTerminal();
+            }}
+            className="mobile-nav-item mt-8 inline-flex items-center gap-2 border border-[var(--color-line-strong)] px-4 py-2 text-sm"
+          >
+            <Command size={14} /> Open Terminal
+          </button>
         </nav>
       </div>
 
       <style>{`
-        /* CSS-only stagger for mobile menu — no per-item React work */
         .mobile-nav-item {
           opacity: 0;
           transform: translateY(12px);
@@ -242,7 +221,25 @@ export function Navbar({ onOpenTerminal }: { onOpenTerminal: () => void }) {
         [data-open="true"] .mobile-nav-item:nth-child(2) { transition-delay: 160ms; }
         [data-open="true"] .mobile-nav-item:nth-child(3) { transition-delay: 220ms; }
         [data-open="true"] .mobile-nav-item:nth-child(4) { transition-delay: 280ms; }
+        [data-open="true"] .mobile-nav-item:nth-child(5) { transition-delay: 340ms; }
       `}</style>
     </>
+  );
+}
+
+function SecondaryLink({ href, label, num, active }: { href: string; label: string; num: string; active: boolean }) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className={cn(
+          "group flex items-baseline gap-3 py-2 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em] transition-colors duration-200",
+          active ? "text-[var(--color-ink)]" : "text-[var(--color-muted)] hover:text-[var(--color-ink)]",
+        )}
+      >
+        <span className="text-[var(--color-muted-2)] group-hover:text-[var(--color-muted)] transition-colors">N°{num}</span>
+        <span>{label}</span>
+      </Link>
+    </li>
   );
 }

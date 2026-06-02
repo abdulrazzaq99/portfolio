@@ -1,69 +1,65 @@
 import { SectionWrapper } from "@/components/layout/section-wrapper";
-import { Reveal, RevealText } from "@/components/ui/reveal";
+import { SectionHeader } from "@/components/layout/section-header";
 import { experiences } from "@/data/experience";
-import { MapPin } from "lucide-react";
 
+/**
+ * Experience — outcome-indexed list. Each role is a row of mono metadata
+ * (dates, org, location) followed by 3-4 outcome-focused bullets. No
+ * timeline rail, no glass cards, no decorative dots.
+ */
 export function Experience() {
   return (
-    <SectionWrapper id="experience" eyebrow={{ num: "03", label: "Experience" }}>
-      <div className="mb-14 flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
-        <RevealText
-          as="h2"
-          text="Two years, well spent."
-          className="text-balance text-[clamp(40px,6vw,86px)] font-medium leading-[0.98] tracking-[-0.04em]"
-        />
-        <Reveal delay={150}>
-          <p className="max-w-md text-sm leading-relaxed text-[var(--color-muted)]">
-            A short timeline, written for impact rather than responsibility.
-            What changed because the work shipped, not what the work was.
-          </p>
-        </Reveal>
-      </div>
+    <SectionWrapper id="experience" containerSize="wide">
+      <SectionHeader
+        num="04"
+        section="SECTION"
+        keywords={["EXPERIENCE", "TRACK", "INDEX"]}
+        title={{ left: "EXPERIENCE", right: "TRACK" }}
+        subSpec={{
+          num: "04",
+          label: "TRACK",
+          meta: `${experiences.length} roles · ~3 years · remote-first`,
+        }}
+      />
 
-      <ol className="relative">
-        <span
-          className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-[var(--color-primary)]/40 via-[var(--color-line-strong)] to-transparent sm:left-[148px]"
-          aria-hidden
-        />
+      <ol className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line-strong)]">
         {experiences.map((exp, i) => (
-          <Reveal key={`${exp.start}-${exp.org}`} delay={i * 80}>
-            <li className="group relative grid gap-4 pb-12 last:pb-0 sm:grid-cols-[160px_1fr]">
-              {/* Year */}
-              <div className="relative pl-12 sm:pl-0">
-                <span className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                  {exp.start} → {exp.end}
-                </span>
+          <li key={`${exp.start}-${exp.org}`} className="grid gap-6 py-8 md:grid-cols-[60px_220px_1fr] md:gap-10 md:py-10">
+            {/* N° */}
+            <span className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-[0.18em] text-[var(--color-muted-2)]">
+              N°{String(i + 1).padStart(2, "0")}
+            </span>
 
-                {/* Dot */}
-                <span
-                  className="absolute left-4 top-1.5 grid h-3 w-3 -translate-x-1/2 place-items-center sm:left-[148px]"
-                  aria-hidden
-                >
-                  <span className="absolute inline-block h-3 w-3 rounded-full bg-[var(--color-primary)]/15 transition-transform duration-700 group-hover:scale-150" />
-                  <span className="relative inline-block h-2 w-2 rounded-full bg-[var(--color-primary)] ring-4 ring-[var(--color-bg)]" />
-                </span>
+            {/* Date + org column */}
+            <div className="space-y-1">
+              <div className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                {exp.start} → {exp.end}
               </div>
+              <div className="text-[15px] font-semibold tracking-tight text-[var(--color-ink)]">
+                {exp.org}
+              </div>
+              <div className="font-[family-name:var(--font-mono)] text-[10.5px] uppercase tracking-[0.18em] text-[var(--color-muted-2)]">
+                {exp.location}
+              </div>
+            </div>
 
-              {/* Body */}
-              <div className="rounded-2xl border border-transparent p-1 transition-colors duration-500 group-hover:border-[var(--color-line)] group-hover:bg-[var(--color-elevated)]/50 sm:p-5 sm:pl-8">
-                <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{exp.role}</h3>
-                <div className="mt-1 flex flex-wrap items-center gap-3 font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                  <span className="text-[var(--color-primary)]">{exp.org}</span>
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin size={11} /> {exp.location}
-                  </span>
-                </div>
-                <ul className="mt-4 space-y-2 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-                  {exp.impact.map((line) => (
-                    <li key={line} className="flex gap-2">
-                      <span className="mt-1 inline-block h-1 w-3 shrink-0 rounded-full bg-[var(--color-primary)]/60" aria-hidden />
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          </Reveal>
+            {/* Role + outcomes */}
+            <div>
+              <h3 className="text-[15px] font-medium tracking-tight text-[var(--color-ink-soft)]">
+                {exp.role}
+              </h3>
+              <ul className="mt-3 space-y-2 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
+                {exp.impact.map((line) => (
+                  <li key={line} className="grid grid-cols-[16px_1fr] gap-2">
+                    <span aria-hidden className="pt-2">
+                      <span className="block h-px w-3 bg-[var(--color-muted-2)]" />
+                    </span>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
         ))}
       </ol>
     </SectionWrapper>

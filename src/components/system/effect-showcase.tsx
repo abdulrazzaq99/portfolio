@@ -5,11 +5,8 @@ type Effect = {
 };
 
 const EFFECTS: Effect[] = [
-  { name: "glass",           className: "glass",           description: "Subtle white wash on dark, 18px blur, soft inset highlight." },
-  { name: "glass-elevated",  className: "glass-elevated",  description: "Stronger wash, 24px blur — used for cards lifted above ambient." },
-  { name: "gradient-border", className: "gradient-border", description: "Animated 1px conic-style border. Brightens on hover." },
-  { name: "shimmer",         className: "shimmer",         description: "Diagonal sweep on hover. Hover the tile to see it." },
-  { name: "neon-glow",       className: "neon-glow",       description: "Outer + spread shadow in neon emerald. The hero CTA's hover state." },
+  { name: "glass",           className: "glass",           description: "Subtle wash on the page surface. 14px blur. Quiet." },
+  { name: "glass-elevated",  className: "glass-elevated",  description: "Stronger wash for elevated controls (toggles, ghost buttons)." },
 ];
 
 export function EffectShowcase() {

@@ -15,6 +15,8 @@ export type NoteMeta = {
   readTime: string;
   /** Drafts are excluded from the production index but routes still resolve */
   status: NoteStatus;
+  /** Optional pull-quote shown when this note is featured at the top of the index */
+  excerpt?: string;
 };
 
 export type Note = {

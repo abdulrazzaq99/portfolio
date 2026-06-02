@@ -44,12 +44,8 @@ export function NoteShell({ meta, children }: { meta: NoteMeta; children: ReactN
         </div>
 
         {/* Title */}
-        <h1 className="text-balance font-[family-name:var(--font-display)] text-[clamp(40px,6vw,84px)] font-normal leading-[1.02] tracking-[-0.02em] text-[var(--color-ink)]">
-          {meta.title}
-          <span
-            className="text-[var(--color-primary-glow)]"
-            style={{ textShadow: "0 0 16px oklch(0.86 0.27 152 / 0.5)" }}
-          >.</span>
+        <h1 className="text-balance text-[clamp(40px,6vw,84px)] font-bold leading-[1.02] tracking-[-0.03em] text-[var(--color-ink)]">
+          {meta.title}<span className="text-[var(--color-primary-glow)]">.</span>
         </h1>
 
         {/* Dek */}
