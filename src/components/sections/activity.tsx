@@ -1,10 +1,18 @@
 import { SectionWrapper } from "@/components/layout/section-wrapper";
 import { SectionHeader } from "@/components/layout/section-header";
-import contributions from "@/data/contributions.json";
+import staticContributions from "@/data/contributions.json";
+import { personal } from "@/data/personal";
+import {
+  fetchContributions,
+  type ContributionData,
+} from "@/lib/github-contributions";
 
 type Weeks = number[][];
 
-const data = contributions as { total: number; weeks: Weeks; lastDate: string };
+const GITHUB_HANDLE =
+  personal.socials.github.match(/github\.com\/([^/]+)/)?.[1] ?? "abdulrazzaq99";
+
+const staticData = staticContributions as ContributionData;
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -77,7 +85,13 @@ const cellClass: Record<number, string> = {
   4: "bg-[var(--color-primary-glow)]",
 };
 
-export function Activity() {
+export async function Activity() {
+  // Live fetch with ISR cache (6h). Falls back to the static snapshot if
+  // the network call fails or returns garbage so the section never breaks.
+  const live = await fetchContributions(GITHUB_HANDLE);
+  const data: ContributionData = live ?? staticData;
+  const isLive = !!live;
+
   const stats = computeStats(data.weeks);
   const months = monthOffsets(data.weeks, data.lastDate);
 
@@ -88,11 +102,11 @@ export function Activity() {
         section="SECTION"
         keywords={["ACTIVITY", "GITHUB", "INDEX"]}
         title={{ left: "DAYS I", right: "CODE" }}
-        rightStatus="LIVE"
+        rightStatus={isLive ? "LIVE" : "SNAPSHOT"}
         subSpec={{
           num: "05",
           label: "ACTIVITY",
-          meta: `${stats.total.toLocaleString()} contributions · last 12 months · @abdulrazzaq99`,
+          meta: `${stats.total.toLocaleString()} contributions · last 12 months · @${GITHUB_HANDLE}`,
         }}
       />
 
