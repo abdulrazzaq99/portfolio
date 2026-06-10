@@ -8,7 +8,7 @@ import { EffectShowcase } from "@/components/system/effect-showcase";
 import { DecisionsLog } from "@/components/system/decisions-log";
 
 export const metadata: Metadata = {
-  title: "Design system — Abdul Razzaq",
+  title: "Design system",
   description:
     "The design tokens, components, effects, and decisions used to build this very portfolio. A meta-trust artifact.",
   openGraph: {

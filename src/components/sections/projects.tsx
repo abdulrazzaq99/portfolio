@@ -131,9 +131,16 @@ function Row({
   onOpen: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onOpen}
+    <Link
+      href={`/work/${project.slug}`}
+      onClick={(e) => {
+        // Plain click opens the preview modal; modifier/middle clicks keep
+        // native link behavior. The real href also makes /work/[slug]
+        // discoverable by crawlers.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        onOpen();
+      }}
       className="group grid w-full grid-cols-[40px_1fr_40px] gap-4 py-5 text-left transition-colors duration-200 hover:bg-[var(--color-bg-2)] md:grid-cols-[60px_1fr_220px_120px_40px] md:gap-6 md:py-6"
     >
       {/* N° */}
@@ -189,6 +196,6 @@ function Row({
           <Github size={12} /> {project.github}
         </span>
       )}
-    </button>
+    </Link>
   );
 }

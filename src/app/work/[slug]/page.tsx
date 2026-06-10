@@ -20,20 +20,23 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
   if (!project) return {};
-  const title = `${project.name} — Abdul Razzaq`;
+  // Layout's title template appends "— Abdul Razzaq"; OG titles don't
+  // inherit the template, so they carry the full string explicitly.
+  const title = project.name;
+  const ogTitle = `${project.name} — Abdul Razzaq`;
   const description = project.problem;
   return {
     title,
     description,
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       images: [`/og/work/${project.slug}`],
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: ogTitle,
       description,
       images: [`/og/work/${project.slug}`],
     },

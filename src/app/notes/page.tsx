@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { publishedNotes, type Note } from "@/content/notes";
 
 export const metadata: Metadata = {
-  title: "Notes — Abdul Razzaq",
+  title: "Notes",
   description: "Essays on engineering, design systems, and the work that compounds.",
   openGraph: {
     title: "Notes — Abdul Razzaq",

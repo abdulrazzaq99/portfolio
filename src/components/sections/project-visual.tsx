@@ -22,62 +22,111 @@ export function ProjectVisual({ project }: { project: Project }) {
   const slugFile = project.slug.replace(/-/g, "_");
   const filename = `${slugFile}.${fileExt}`;
 
-  // Build code lines (faux-snippet) — keyword-tinted to feel like a real editor
-  const lines: { tokens: { t: string; c: "kw" | "fn" | "str" | "num" | "cm" | "id" | "op" }[] }[] = [
-    { tokens: [{ t: "// ", c: "cm" }, { t: project.name, c: "cm" }] },
-    {
-      tokens: [
-        { t: "import ", c: "kw" },
-        { t: "{ ", c: "op" },
-        { t: "pipeline", c: "id" },
-        { t: " } ", c: "op" },
-        { t: "from ", c: "kw" },
-        { t: `"./${slugFile}"`, c: "str" },
-      ],
-    },
-    { tokens: [] },
-    {
-      tokens: [
-        { t: "export ", c: "kw" },
-        { t: "const ", c: "kw" },
-        { t: "stack ", c: "id" },
-        { t: "= ", c: "op" },
-        { t: "[", c: "op" },
-      ],
-    },
-    ...project.stack.slice(0, 3).map((s) => ({
-      tokens: [
-        { t: "  ", c: "id" as const },
-        { t: `"${s}"`, c: "str" as const },
-        { t: ",", c: "op" as const },
-      ],
-    })),
-    { tokens: [{ t: "]", c: "op" }] },
-    { tokens: [] },
-    {
-      tokens: [
-        { t: "async ", c: "kw" },
-        { t: "function ", c: "kw" },
-        { t: "build", c: "fn" },
-        { t: "(): ", c: "op" },
-        { t: "Promise", c: "fn" },
-        { t: "<", c: "op" },
-        { t: "Result", c: "fn" },
-        { t: "> {", c: "op" },
-      ],
-    },
-    {
-      tokens: [
-        { t: "  ", c: "id" },
-        { t: "return ", c: "kw" },
-        { t: "pipeline", c: "id" },
-        { t: ".", c: "op" },
-        { t: "run", c: "fn" },
-        { t: "({ stack });", c: "op" },
-      ],
-    },
-    { tokens: [{ t: "}", c: "op" }] },
-  ];
+  // Build code lines (faux-snippet) — keyword-tinted to feel like a real
+  // editor. Syntax follows the file extension so a .py tab shows Python.
+  type Tok = { t: string; c: "kw" | "fn" | "str" | "num" | "cm" | "id" | "op" };
+  type Line = { tokens: Tok[] };
+
+  const stackLines: Line[] = project.stack.slice(0, 3).map((s) => ({
+    tokens: [
+      { t: "  ", c: "id" as const },
+      { t: `"${s}"`, c: "str" as const },
+      { t: ",", c: "op" as const },
+    ],
+  }));
+
+  const lines: Line[] =
+    fileExt === "py"
+      ? [
+          { tokens: [{ t: "# ", c: "cm" }, { t: project.name, c: "cm" }] },
+          {
+            tokens: [
+              { t: "from ", c: "kw" },
+              { t: slugFile, c: "id" },
+              { t: " import ", c: "kw" },
+              { t: "pipeline", c: "id" },
+            ],
+          },
+          { tokens: [] },
+          {
+            tokens: [
+              { t: "stack ", c: "id" },
+              { t: "= ", c: "op" },
+              { t: "[", c: "op" },
+            ],
+          },
+          ...stackLines,
+          { tokens: [{ t: "]", c: "op" }] },
+          { tokens: [] },
+          {
+            tokens: [
+              { t: "async ", c: "kw" },
+              { t: "def ", c: "kw" },
+              { t: "build", c: "fn" },
+              { t: "():", c: "op" },
+            ],
+          },
+          {
+            tokens: [
+              { t: "    ", c: "id" },
+              { t: "return ", c: "kw" },
+              { t: "await ", c: "kw" },
+              { t: "pipeline", c: "id" },
+              { t: ".", c: "op" },
+              { t: "run", c: "fn" },
+              { t: "(stack)", c: "op" },
+            ],
+          },
+        ]
+      : [
+          { tokens: [{ t: "// ", c: "cm" }, { t: project.name, c: "cm" }] },
+          {
+            tokens: [
+              { t: "import ", c: "kw" },
+              { t: "{ ", c: "op" },
+              { t: "pipeline", c: "id" },
+              { t: " } ", c: "op" },
+              { t: "from ", c: "kw" },
+              { t: `"./${slugFile}"`, c: "str" },
+            ],
+          },
+          { tokens: [] },
+          {
+            tokens: [
+              { t: "export ", c: "kw" },
+              { t: "const ", c: "kw" },
+              { t: "stack ", c: "id" },
+              { t: "= ", c: "op" },
+              { t: "[", c: "op" },
+            ],
+          },
+          ...stackLines,
+          { tokens: [{ t: "]", c: "op" }] },
+          { tokens: [] },
+          {
+            tokens: [
+              { t: "async ", c: "kw" },
+              { t: "function ", c: "kw" },
+              { t: "build", c: "fn" },
+              { t: "(): ", c: "op" },
+              { t: "Promise", c: "fn" },
+              { t: "<", c: "op" },
+              { t: "Result", c: "fn" },
+              { t: "> {", c: "op" },
+            ],
+          },
+          {
+            tokens: [
+              { t: "  ", c: "id" },
+              { t: "return ", c: "kw" },
+              { t: "pipeline", c: "id" },
+              { t: ".", c: "op" },
+              { t: "run", c: "fn" },
+              { t: "({ stack });", c: "op" },
+            ],
+          },
+          { tokens: [{ t: "}", c: "op" }] },
+        ];
 
   const tokenColor = (c: "kw" | "fn" | "str" | "num" | "cm" | "id" | "op") => {
     switch (c) {
@@ -96,7 +145,7 @@ export function ProjectVisual({ project }: { project: Project }) {
     { name: "src/", kind: "dir" as const, indent: 0, active: false },
     { name: filename, kind: "file" as const, indent: 1, active: true },
     { name: "lib/", kind: "dir" as const, indent: 1, active: false },
-    { name: "schema.ts", kind: "file" as const, indent: 2, active: false },
+    { name: fileExt === "py" ? "schema.py" : "schema.ts", kind: "file" as const, indent: 2, active: false },
     { name: "README.md", kind: "file" as const, indent: 0, active: false },
     { name: ".env", kind: "file" as const, indent: 0, active: false },
   ];
@@ -206,7 +255,7 @@ export function ProjectVisual({ project }: { project: Project }) {
                 <text x="0" y="14" fontFamily="ui-monospace" fontSize="10.5" fill="oklch(0.30 0.012 158)" textAnchor="end" dx="22">
                   {ln}
                 </text>
-                <text x="34" y="14" fontFamily="ui-monospace" fontSize="12">
+                <text x="34" y="14" fontFamily="ui-monospace" fontSize="12" xmlSpace="preserve">
                   {line.tokens.map((tok, j) => (
                     <tspan key={j} fill={tokenColor(tok.c)}>
                       {tok.t}

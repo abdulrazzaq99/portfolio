@@ -3,19 +3,13 @@
 import { useState } from "react";
 import { ArrowUpRight, Send } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { SectionWrapper } from "@/components/layout/section-wrapper";
 import { SectionHeader } from "@/components/layout/section-header";
 import { personal } from "@/data/personal";
+import { contactSchema } from "@/lib/contact-schema";
 import { cn } from "@/lib/utils";
 
-const schema = z.object({
-  name: z.string().min(2, "Name (2+ chars)"),
-  email: z.string().email("Valid email required"),
-  message: z.string().min(20, "20+ characters"),
-});
-
-type FieldErrors = Partial<Record<keyof z.infer<typeof schema>, string>>;
+type FieldErrors = Partial<Record<"name" | "email" | "message", string>>;
 
 /**
  * Contact — minimal mono block. Two columns of plain text directories +
@@ -27,9 +21,10 @@ export function Contact() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const data = Object.fromEntries(formData) as Record<string, string>;
-    const parsed = schema.safeParse(data);
+    const parsed = contactSchema.safeParse(data);
     if (!parsed.success) {
       const next: FieldErrors = {};
       for (const issue of parsed.error.issues) {
@@ -43,11 +38,22 @@ export function Contact() {
     setErrors({});
     setPending(true);
     try {
-      await new Promise((r) => setTimeout(r, 800));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed.data),
+      });
+      if (!res.ok) throw new Error(`contact api ${res.status}`);
       toast.success("Message sent. Reply within 24h.");
-      e.currentTarget.reset();
+      form.reset();
     } catch {
-      toast.error("Couldn't send. Email me directly.");
+      // No email service configured (or it failed) — hand off to the
+      // visitor's mail client so the message isn't silently lost.
+      const { name, email, message } = parsed.data;
+      const subject = encodeURIComponent(`Portfolio contact — ${name}`);
+      const body = encodeURIComponent(`From: ${name} <${email}>\n\n${message}`);
+      window.location.href = `mailto:${personal.email}?subject=${subject}&body=${body}`;
+      toast.error("Email service unavailable — opening your mail app instead.");
     } finally {
       setPending(false);
     }

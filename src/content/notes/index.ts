@@ -13,7 +13,7 @@ export type NoteMeta = {
   date: string;
   /** Estimated read time, e.g. "12 min" */
   readTime: string;
-  /** Drafts are excluded from the production index but routes still resolve */
+  /** Drafts are visible in dev only — excluded from the production index and routes */
   status: NoteStatus;
   /** Optional pull-quote shown when this note is featured at the top of the index */
   excerpt?: string;
@@ -40,10 +40,11 @@ export function getNote(slug: string): Note | undefined {
   return notes.find((n) => n.meta.slug === slug);
 }
 
+/** Drafts are visible in dev for previewing, hidden everywhere in production. */
+export function isNoteVisible(note: Note): boolean {
+  return note.meta.status === "published" || process.env.NODE_ENV !== "production";
+}
+
 export function publishedNotes(): Note[] {
-  // In production, drafts are hidden from the index; in dev, all notes show.
-  if (process.env.NODE_ENV === "production") {
-    return notes.filter((n) => n.meta.status === "published");
-  }
-  return notes;
+  return notes.filter(isNoteVisible);
 }

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NoteShell } from "@/components/notes/note-shell";
-import { getNote, notes } from "@/content/notes";
+import { getNote, isNoteVisible, publishedNotes } from "@/content/notes";
 
 type Params = { slug: string };
 
 export function generateStaticParams(): Params[] {
-  return notes.map((n) => ({ slug: n.meta.slug }));
+  return publishedNotes().map((n) => ({ slug: n.meta.slug }));
 }
 
 export async function generateMetadata({
@@ -16,10 +16,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const note = getNote(slug);
-  if (!note) return {};
+  if (!note || !isNoteVisible(note)) return {};
   const { title, dek } = note.meta;
   return {
-    title: `${title} — Abdul Razzaq`,
+    title,
     description: dek,
     openGraph: {
       title,
@@ -39,7 +39,7 @@ export async function generateMetadata({
 export default async function NotePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const note = getNote(slug);
-  if (!note) notFound();
+  if (!note || !isNoteVisible(note)) notFound();
 
   const { Body, meta } = note;
   return (
